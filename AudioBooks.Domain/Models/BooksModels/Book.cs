@@ -27,7 +27,7 @@ public class Book : BaseParametrs
     [DataType(DataType.Date, ErrorMessage = "Invalid date format.")]
     [CustomValidation(typeof(Book), nameof(ValidateReleaseDate))]
     public DateTime ReleaseDate { get; set; }
-    public string Rating { get; set; }
+    public double Rating { get; set; }
 
     public virtual ICollection<BookCategory> BookCategories { get; set; }
     public virtual ICollection<Comment> Comments { get; set; }

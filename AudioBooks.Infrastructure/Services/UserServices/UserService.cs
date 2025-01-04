@@ -96,4 +96,27 @@ public class UserService : IUserService
         }
         return Result<string>.Failure(UserError.VerificationCode);
     }
+    public async Task<Result<string>> RessetPasswordAsync(RessetPasswordUserDTO userRessetPassword)
+    {
+        var user = await _userRepository.GetByEmailAsync(userRessetPassword.Email.ToLower());
+        if (user is not null && !user.IsDelete)
+        {
+            if (await _userRepository.CheckConfirmPassword(userRessetPassword.Password, userRessetPassword.ConfirmPassword))
+            {
+                int code = await _userRepository.GenerateCode();
+
+                //await _userRepository.SendVerificationEmail(user.Email.ToLower(), code);
+
+                SingletonPattern.Instance.Id = user.Id;
+                SingletonPattern.Instance.Email = user.Email;
+                SingletonPattern.Instance.Password = userRessetPassword.Password;
+                SingletonPattern.Instance.Code = code;
+                SingletonPattern.Instance.CreateTime = DateTime.Now;
+
+                return Result<string>.Success($"{user.Email.ToLower()} ga tasdiqlash kodi yuborildi - {code}");
+            }
+            return Result<string>.Failure(UserError.ConfirmPassword);
+        }
+        return Result<string>.Failure(UserError.EmailNotFound);
+    }
 }

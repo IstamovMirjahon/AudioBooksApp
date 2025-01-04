@@ -30,8 +30,6 @@ namespace AudioBooks.Domain.DTOs.Book;
         [DataType(DataType.Date, ErrorMessage = "Noto'g'ri sana formati.")]
         public DateTime ReleaseDate { get; set; }
 
-        [StringLength(10, ErrorMessage = "Rating uzunligi 10 belgidan oshmasligi kerak.")]
-        public string Rating { get; set; }
         public List<Guid> CategoryIds { get; set; }
     }
 

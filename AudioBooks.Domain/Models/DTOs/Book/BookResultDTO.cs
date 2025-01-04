@@ -11,6 +11,7 @@ public class BookResultDTO
     public string Download_file { get; set; }
     public string Audio_file { get; set; }
     public string Image_file { get; set; }
+    public  double  Rating { get; set; }
     public string Description { get; set; }
     public DateTime release_date { get; set; }
     public List<CategoryResultDTO> Categories { get; set; } = new List<CategoryResultDTO>();

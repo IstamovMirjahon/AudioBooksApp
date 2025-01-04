@@ -2,7 +2,7 @@
 
 public class Error
 {
-    public Error(string code, string message)
+    public Error(string code, string message= "")
     {
         Message = message;
         Code = code;

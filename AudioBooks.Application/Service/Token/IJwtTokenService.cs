@@ -20,5 +20,6 @@ public interface IJwtTokenService
     Task<Result<Guid>> GetUserIdFromTokenAsync(string token);
     Task<Result<string>> GetUserRoleFromTokenAsync(string token);
     Task<bool> CheckToken(Guid userId);
+    Task<Result<(Guid UserId, string Username)>> GetUserDetailsFromTokenAsync(string token);
 
 }
