@@ -1,5 +1,6 @@
 ﻿using AudioBooks.Application.Service.UserServices;
 using AudioBooks.Domain.Abstractions;
+using AudioBooks.Domain.Enums;
 using AudioBooks.Domain.Models.DTOs.Auth;
 using AudioBooks.Domain.Models.UserModels;
 using AudioBooks.Infrastructure.Repositories.UserRepositories;
@@ -74,7 +75,7 @@ public class UserService : IUserService
                     CreateDate = DateTime.UtcNow,
                     UpdateDate = DateTime.UtcNow,
                     IsDelete = false,
-                    Role = Domain.Enums.UserRole.User
+                    Role = UserRole.User
                 };
                 await _userRepository.AddAsync(user);
 
@@ -118,5 +119,30 @@ public class UserService : IUserService
             return Result<string>.Failure(UserError.ConfirmPassword);
         }
         return Result<string>.Failure(UserError.EmailNotFound);
+    }
+
+    public Task<Result<UserDto>> GetUserAsync(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Result<string>> UpdateUserAsync(UserUpdateDto updateUserDTO, Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Result<string>> ChangePasswordAsync(ChangePassword changePassword, Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Result<string>> DeleteUserAsync(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Result<List<User>>> GetAllUsers()
+    {
+        throw new NotImplementedException();
     }
 }

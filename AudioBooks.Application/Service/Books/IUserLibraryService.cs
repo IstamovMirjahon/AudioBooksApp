@@ -8,7 +8,7 @@ namespace AudioBooks.Application.Interfaces.Books;
 public interface IUserLibraryService
 {
     Task<RequestResponseDto> CreateAsync(UserLibraryCreateDTO userLibraryCreateDTO);
-    Task<Result<IEnumerable<UserLibrary>>> GetAllAsync();
+    Task<Result<IEnumerable<UserLibrary>>> GetAllAsync(Guid userId);
     Task<Result<UserLibraryDTO>> GetLibraryBook(Guid id);
     Task<RequestResponseDto<IEnumerable<UserLibrary>>> SearchBook(string value); 
 }

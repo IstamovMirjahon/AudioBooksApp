@@ -11,42 +11,40 @@ using System.Text;
 public class JwtTokenService : IJwtTokenService
 {
     private readonly IConfiguration _configuration;
-    private readonly IDistributedCache _cache;
-    public JwtTokenService(IConfiguration configuration, IDistributedCache distributedCache)
+    public JwtTokenService(IConfiguration configuration)
     {
         _configuration = configuration;
-        _cache = distributedCache;
     }
 
-    public async Task<string> GenerateToken(User user)
-    {
-        var claims = new List<Claim>
-        {
-            new Claim("UserId", user.Id.ToString()),
-            new Claim("Role", user.Role.ToString())
-        };
+    //public async Task<string> GenerateToken(User user)
+    //{
+    //    var claims = new List<Claim>
+    //    {
+    //        new Claim("UserId", user.Id.ToString()),
+    //        new Claim("Role", user.Role.ToString())
+    //    };
 
-        var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtOptions:Key"]));
-        var signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+    //    var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtOptions:Key"]));
+    //    var signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
-        var tokenOptions = new JwtSecurityToken(
-            issuer: _configuration["JwtOptions:Issuer"],
-            audience: _configuration["JwtOptions:Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(_configuration["JwtOptions:ExpiresInMinutes"])),
-            signingCredentials: signingCredentials
-        );
+    //    var tokenOptions = new JwtSecurityToken(
+    //        issuer: _configuration["JwtOptions:Issuer"],
+    //        audience: _configuration["JwtOptions:Audience"],
+    //        claims: claims,
+    //        expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(_configuration["JwtOptions:ExpiresInMinutes"])),
+    //        signingCredentials: signingCredentials
+    //    );
 
-        var tokenString = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+    //    var tokenString = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
 
-        var tokenKey = $"user_tokens:{user.Id}";
-        await _cache.SetStringAsync(tokenKey, tokenString, new DistributedCacheEntryOptions
-        {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(300)
-        });
+    //    var tokenKey = $"user_tokens:{user.Id}";
+    //    await _cache.SetStringAsync(tokenKey, tokenString, new DistributedCacheEntryOptions
+    //    {
+    //        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(300)
+    //    });
 
-        return tokenString;
-    }
+    //    return tokenString;
+    //}
 
     public ClaimsPrincipal ValidateToken(string token)
     {
@@ -122,17 +120,6 @@ public class JwtTokenService : IJwtTokenService
         }
     }
 
-    public async Task<bool> CheckToken(Guid userId)
-    {
-        var tokenKey = $"user_tokens:{userId}";
-
-        // Keshdan tokenni o‘qish
-        var cachedToken = await _cache.GetStringAsync(tokenKey);
-
-        if(cachedToken == null) return false;
-
-        return true;
-    }
     public async Task<Result<(Guid UserId, string Username)>> GetUserDetailsFromTokenAsync(string token)
     {
         try

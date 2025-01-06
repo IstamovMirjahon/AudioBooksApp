@@ -25,17 +25,18 @@ public class UserLibraryRepository : IUserLibraryRepository
         _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<UserLibrary>> GetAllLibraryBooksAsync()
+    public async Task<IEnumerable<UserLibrary>> GetAllLibraryBooksAsync(Guid userid)
     {
         using var connect = _sqlConnection.ConnectionBuild();
 
         const string sql = """
-                            SELECT 
-                            *    
-                            FROM "user_libraries"
-                            """;
+                        SELECT 
+                        *    
+                        FROM "user_libraries"
+                        WHERE "user_id" = @UserId
+                        """;
 
-        var query = await connect.QueryAsync<UserLibrary>(sql);
+        var query = await connect.QueryAsync<UserLibrary>(sql, new { UserId = userid });
 
         return query;
     }

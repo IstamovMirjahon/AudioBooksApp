@@ -1,6 +1,7 @@
 ﻿
 using AudioBooks.Domain.StaticModels;
 using AudioBooks.Infrastructure;
+using AudioBooksApp.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -46,7 +47,7 @@ namespace AudioBooksApp
             builder.Services.AddSwaggerGen(options =>
             {
                 options.EnableAnnotations();
-
+                options.OperationFilter<FileUploadOperationFilter>();
                 // Swaggerda Bearer tokenni qo�shish
                 options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                 {

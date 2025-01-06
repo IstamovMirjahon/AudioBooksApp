@@ -46,11 +46,11 @@ public class UserLibraryService : IUserLibraryService
         }
     }
 
-    public async Task<Result<IEnumerable<UserLibrary>>> GetAllAsync()
+    public async Task<Result<IEnumerable<UserLibrary>>> GetAllAsync(Guid userId)
     {
         try
         {
-            var result = await _userLibraryRepository.GetAllLibraryBooksAsync();
+            var result = await _userLibraryRepository.GetAllLibraryBooksAsync(userId);
             return Result<IEnumerable<UserLibrary>>.Success(result);
         }
         catch (Exception ex)

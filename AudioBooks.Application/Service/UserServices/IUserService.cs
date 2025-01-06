@@ -10,8 +10,9 @@ public interface IUserService
     Task<Result<SignInResponse>> SignInAsync(UserLoginDto signInDTO);
     Task<Result<string>> RessetPasswordAsync(RessetPasswordUserDTO userRessetPassword);
     Task<Result<string>> VerificationCodeService(int code);
-    //Task<Result<List<GetUser>>> GetUserAsyncs();
-    //Task<Result<string>> UpdateUserAsync(UpdateUserDTO updateUserDTO, string token);
-    //Task<Result<string>> ChangePasswordAsync(ChangePassword changePassword, string token);
-    //Task<Result<string>> DeleteUserAsync(string token);
+    Task<Result<UserDto>> GetUserAsync(Guid id);
+    Task<Result<List<User>>> GetAllUsers();
+    Task<Result<string>> UpdateUserAsync(UserUpdateDto updateUserDTO, Guid id);
+    Task<Result<string>> ChangePasswordAsync(ChangePassword changePassword, Guid id);
+    Task<Result<string>> DeleteUserAsync(Guid id);
 }

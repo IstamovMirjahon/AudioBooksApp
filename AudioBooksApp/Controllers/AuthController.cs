@@ -8,10 +8,10 @@ namespace AudioBooksApp.Controllers;
 
 [Route("api/[controller]/[action]")]
 [ApiController]
-public class UserController : ControllerBase
+public class AuthController : ControllerBase
 {
     private readonly IUserService _userService;
-    public UserController(IUserService userService)
+    public AuthController(IUserService userService)
     {
         _userService = userService;
     }

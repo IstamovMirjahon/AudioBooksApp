@@ -15,11 +15,11 @@ public interface IJwtTokenService
     Task<(string,string)> RefreshTokenAsync(string token, string refreshToken);
     */
 
-    Task<string> GenerateToken(User user);
+    //Task<string> GenerateToken(User user);
     ClaimsPrincipal ValidateToken(string token);
     Task<Result<Guid>> GetUserIdFromTokenAsync(string token);
     Task<Result<string>> GetUserRoleFromTokenAsync(string token);
-    Task<bool> CheckToken(Guid userId);
+    //Task<bool> CheckToken(Guid userId);
     Task<Result<(Guid UserId, string Username)>> GetUserDetailsFromTokenAsync(string token);
 
 }
