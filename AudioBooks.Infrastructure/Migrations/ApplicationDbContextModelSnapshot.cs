@@ -181,6 +181,10 @@ namespace AudioBooks.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("user_name");
 
+                    b.Property<int>("Value")
+                        .HasColumnType("integer")
+                        .HasColumnName("value");
+
                     b.HasKey("Id")
                         .HasName("pk_comments");
 

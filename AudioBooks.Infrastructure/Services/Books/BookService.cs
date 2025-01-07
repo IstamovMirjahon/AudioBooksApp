@@ -13,11 +13,13 @@ public class BookService : IBookService
     private readonly IBookRepository _bookRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISqlConnection _sqlConnection;
-    public BookService(IBookRepository bookRepository, IUnitOfWork unitOfWork, ISqlConnection sql)
+    private readonly ICommentService _commentService;
+    public BookService(IBookRepository bookRepository, IUnitOfWork unitOfWork, ISqlConnection sql, ICommentService commentService)
     {
         _bookRepository = bookRepository;
         _unitOfWork = unitOfWork;
         _sqlConnection = sql;
+        _commentService = commentService;
     }
     public async Task<RequestResponseDto> CreateBookAsync(BookCreateDTO bookDto)
     {
@@ -44,6 +46,7 @@ public class BookService : IBookService
             audioFileName = $"{Guid.NewGuid()}{Path.GetExtension(bookDto.AudioFile.FileName)}";
             await bookDto.AudioFile.CopyToAsync(audioStream);
         }
+        bookDto.SetReleaseDateUtc();
 
         var book = new Book
         {
@@ -51,13 +54,13 @@ public class BookService : IBookService
             Author = bookDto.Author,
             Description = bookDto.Description,
             Price = bookDto.Price,
-            ReleaseDate = bookDto.ReleaseDate,
+            ReleaseDate = bookDto.ReleaseDate ,
             ImageFile = imageFileName,
             DownloadFile = downloadFileName,
-            AudioFile = audioFileName,
-            //Rating = bookDto.Rating
+            AudioFile = audioFileName
         };
-
+        var result = await _commentService.CalculateAverageCommentValueAsync(book.Id);
+        book.Rating = result.Value;
         if (bookDto.CategoryIds != null && bookDto.CategoryIds.Any())
         {
             book.BookCategories = bookDto.CategoryIds.Select(categoryId => new BookCategory

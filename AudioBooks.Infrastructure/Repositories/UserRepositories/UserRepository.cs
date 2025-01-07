@@ -88,23 +88,31 @@ public class UserRepository : Repository<User>, IUserRepository
 
     public async Task<List<User>> GetUsersAsync()
     {
-        string sql = @"
-                       SELECT 
-                           id,
-                           full_name AS FullName,
-                           email,
-                           password,
-                           create_date AS CreateDate,
-                           update_date AS UpdateDate,
-                           delete_date AS DeleteDate,
-                           is_delete AS IsDelete,
-                           role
-                       FROM ""MainSchema"".""users""";
+        string sql = """
+                        SELECT 
+                            id,
+                            full_name AS FullName,
+                            user_name AS UserName,
+                            phone_number AS PhoneNumber,
+                            birth_date AS BirthDate,
+                            email,
+                            email_confirm_at AS EmailConfirmAt,
+                            password,
+                            role,
+                            balance,
+                            status,
+                            create_date AS CreateDate,
+                            update_date AS UpdateDate,
+                            delete_date AS DeleteDate,
+                            is_delete AS IsDelete
+                        FROM "users" 
+                    """;
 
         using var connect = _sqlConnection.ConnectionBuild();
         var users = await connect.QueryAsync<User>(sql);
         return users.ToList();
     }
+
 
     public async Task<User> GetByEmailAsync(string email)
     {

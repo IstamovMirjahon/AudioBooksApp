@@ -32,7 +32,7 @@ public class AuthController : ControllerBase
         try
         {
             var result = await _userService.SignInAsync(signInDTO);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Value);
         }
         catch (Exception ex)
         {

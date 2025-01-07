@@ -33,4 +33,9 @@ public class BookCreateDTO
 
     [Required(ErrorMessage = "At least one category is required")]
     public List<Guid> CategoryIds { get; set; }
+
+    public void SetReleaseDateUtc()
+    {
+        ReleaseDate = DateTime.SpecifyKind(ReleaseDate, DateTimeKind.Utc);
+    }
 }

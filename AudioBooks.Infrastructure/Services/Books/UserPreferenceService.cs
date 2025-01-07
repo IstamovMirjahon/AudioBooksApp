@@ -53,21 +53,36 @@ namespace AudioBooks.Infrastructure.Services.Books
                 .Join(_context.UserPreferences.Where(up => up.UserId == userId),
                     b => b.CategoryId,
                     up => up.CategoryId,
-                    (b, up) => new BookResultDTO
-                    {
-                        Id = b.Book.Id,
-                        Title = b.Book.Title,
-                        Author = b.Book.Author,
-                        Description = b.Book.Description,
-                        Download_file = b.Book.DownloadFile,
-                        Audio_file = b.Book.AudioFile,
-                        Image_file = b.Book.ImageFile,
-                        Rating = b.Book.Rating, 
-                    })
+                    (b, up) => b.Book)
                 .Distinct()
+                .Select(book => new BookResultDTO
+                {
+                    Id = book.Id,
+                    Title = book.Title,
+                    Author = book.Author,
+                    Price = book.Price,
+                    Description = book.Description,
+                    Download_file = book.DownloadFile,
+                    Audio_file = book.AudioFile,
+                    Image_file = book.ImageFile,
+                    Rating = book.Rating,
+                    Categories = _context.BookCategories
+                        .Where(bc => bc.BookId == book.Id)
+                        .Join(_context.Categories,
+                            bc => bc.CategoryId,
+                            c => c.Id,
+                            (bc, c) => new CategoryResultDTO
+                            {
+                                Id = c.Id,
+                                Name = c.Name,
+                                Description = c.Description
+                            })
+                        .ToList()
+                })
                 .ToListAsync();
 
             return Result<IEnumerable<BookResultDTO>>.Success(recommendedBooks);
         }
+
     }
 } 

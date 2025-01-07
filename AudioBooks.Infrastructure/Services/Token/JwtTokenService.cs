@@ -75,28 +75,35 @@ public class JwtTokenService : IJwtTokenService
 
     public async Task<Result<Guid>> GetUserIdFromTokenAsync(string token)
     {
-        try
-        {
-            var handler = new JwtSecurityTokenHandler();
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var jwtToken = tokenHandler.ReadJwtToken(token);
 
-            if (!handler.CanReadToken(token)) return Result<Guid>.Failure(new Error ("Failed"));
+        // Token ichidan userId ni olish
+        var userIdClaim = jwtToken?.Claims?.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
 
-            var jwtToken = handler.ReadToken(token) as JwtSecurityToken;
-            var userIdClaim = jwtToken?.Claims.FirstOrDefault(claim => claim.Type == "UserId");
-            if (userIdClaim == null) return Result<Guid>.Failure(new Error("Failed:", "null value"));
+        return Result<Guid>.Success(Guid.Parse(userIdClaim.Value)); // userId ni qaytarish
+        //try
+        //{
+        //    var handler = new JwtSecurityTokenHandler();
 
-            Guid userId = default;
-            if (Guid.TryParse(userIdClaim.Value, out Guid parsedUserId))
-            {
-                userId = parsedUserId;
-            }
+        //    if (!handler.CanReadToken(token)) return Result<Guid>.Failure(new Error ("Failed"));
 
-            return Result<Guid>.Success(userId);
-        }
-        catch
-        {
-            return Result<Guid>.Failure(new Error("Failed"));
-        }
+        //    var jwtToken = handler.ReadToken(token) as JwtSecurityToken;
+        //    var userIdClaim = jwtToken?.Claims.FirstOrDefault(claim => claim.Type == "UserId");
+        //    if (userIdClaim == null) return Result<Guid>.Failure(new Error("Failed:", "null value"));
+
+        //    Guid userId = default;
+        //    if (Guid.TryParse(userIdClaim.Value, out Guid parsedUserId))
+        //    {
+        //        userId = parsedUserId;
+        //    }
+
+        //    return Result<Guid>.Success(userId);
+        //}
+        //catch
+        //{
+        //    return Result<Guid>.Failure(new Error("Failed"));
+        //}
     }
 
     public async Task<Result<string>> GetUserRoleFromTokenAsync(string token)

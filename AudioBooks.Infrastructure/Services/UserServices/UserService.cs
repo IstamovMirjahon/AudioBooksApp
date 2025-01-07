@@ -4,6 +4,7 @@ using AudioBooks.Domain.Enums;
 using AudioBooks.Domain.Models.DTOs.Auth;
 using AudioBooks.Domain.Models.UserModels;
 using AudioBooks.Infrastructure.Repositories.UserRepositories;
+using Newtonsoft.Json.Linq;
 
 namespace AudioBooks.Infrastructure.Services.UserServices;
 
@@ -121,28 +122,73 @@ public class UserService : IUserService
         return Result<string>.Failure(UserError.EmailNotFound);
     }
 
-    public Task<Result<UserDto>> GetUserAsync(Guid id)
+    public async Task<Result<UserDto>> GetUserAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var result = await _userRepository.GetByIdAsync(id);
+
+        var newDto = new UserDto
+        {
+            Email = result.Email,
+            Password = result.Password,
+            Fullname = result.FullName,
+            Username = result.UserName,
+            DateOfBirth = result.BirthDate,
+            PhoneNumber = result.PhoneNumber
+        };
+        return Result<UserDto>.Success(newDto);
     }
 
-    public Task<Result<string>> UpdateUserAsync(UserUpdateDto updateUserDTO, Guid id)
+    public async Task<Result<string>> UpdateUserAsync(UserUpdateDto updateUserDTO, Guid id)
     {
-        throw new NotImplementedException();
+        var user = await _userRepository.GetByIdAsync(id);
+
+        user.FullName = updateUserDTO.FullName;
+        user.UserName = updateUserDTO.Username;
+        user.PhoneNumber = updateUserDTO.PhoneNumber;
+        user.BirthDate = updateUserDTO.DateOfBirth;
+        user.UpdateDate = DateTime.UtcNow;
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return Result<string>.Success("Muvaffaqqiyatli yangilandi");
     }
 
-    public Task<Result<string>> ChangePasswordAsync(ChangePassword changePassword, Guid id)
+    public async Task<Result<string>> ChangePasswordAsync(ChangePassword changePassword, Guid id)
     {
-        throw new NotImplementedException();
+        var user = await _userRepository.GetByIdAsync(id);
+
+        if (user.Password == changePassword.OldPasswrod)
+        {
+            if (await _userRepository.CheckConfirmPassword(changePassword.NewPassword, changePassword.ConfirmNewPassword))
+            {
+                user.Password = changePassword.NewPassword;
+                user.UpdateDate = DateTime.UtcNow;
+
+                await _unitOfWork.SaveChangesAsync();
+
+                return Result<string>.Success("Muvaffaqqiyatli yangilandi");
+            }
+            return Result<string>.Failure(UserError.ConfirmPassword);
+        }
+        return Result<string>.Failure(UserError.OldPassword);
     }
 
-    public Task<Result<string>> DeleteUserAsync(Guid id)
+    public async Task<Result<string>> DeleteUserAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var user = await _userRepository.GetByIdAsync(id);
+
+        user.DeleteDate = DateTime.UtcNow;
+        user.IsDelete = true;
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return Result<string>.Success("Muvaffaqqiyatli o'chirildi");
     }
 
-    public Task<Result<List<User>>> GetAllUsers()
+    public async Task<Result<List<User>>> GetAllUsers()
     {
-        throw new NotImplementedException();
+        var result = await _userRepository.GetUsersAsync();
+
+        return Result<List<User>>.Success(result);
     }
 }

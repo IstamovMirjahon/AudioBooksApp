@@ -19,6 +19,8 @@ using AudioBooks.Infrastructure.Services.Books;
 using AudioBooks.Application.Interfaces.Email;
 using AudioBooks.Domain.Interfaces.Token;
 using AudioBooks.Infrastructure.Services.Email;
+using AudioBooks.Application.Interfaces.File;
+using AudioBooks.Infrastructure.Services.Files;
 
 namespace AudioBooks.Infrastructure;
 
@@ -40,16 +42,17 @@ public static class DependencyInjection
         services.AddScoped<IBookRepository, BookRepository>();
         services.AddScoped<ICategoryBooksRepository, CategoryBooksRepository>();
         services.AddScoped<IUserLibraryRepository, UserLibraryRepository>();
-        
+
         services.AddScoped(typeof(Repository<>));
 
         services.AddScoped<IUserService, UserService>();
         //services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<IUserLibraryService,UserLibraryService>();
+        services.AddScoped<IUserLibraryService, UserLibraryService>();
         services.AddScoped<IBookService, BookService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IUserPreferenceService, UserPreferenceService>();
+        services.AddScoped<IFileService, FileService>();
         //services.AddScoped<IEmailService,EmailService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
 

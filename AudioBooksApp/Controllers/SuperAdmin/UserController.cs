@@ -28,8 +28,9 @@ namespace AudioBooks.Api.Controllers.SuperAdmin
         public async Task<ActionResult> GetUserById()
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            
-            var result = await userService.GetUserAsync(token);
+            var userId = await _jwtTokenService.GetUserIdFromTokenAsync(token);
+
+            var result = await userService.GetUserAsync(userId.Value);
             return Ok(result.Value);
         }
         //[HttpPost("CreateUser")]
@@ -48,16 +49,18 @@ namespace AudioBooks.Api.Controllers.SuperAdmin
         public async Task<ActionResult> UpdateUser (UserUpdateDto userUpdateDto)
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = await _jwtTokenService.GetUserIdFromTokenAsync(token);
 
-            var result = await userService.UpdateUserAsync(userUpdateDto,token);
+            var result = await userService.UpdateUserAsync(userUpdateDto,userId.Value);
             return Ok(result.Value);
         }
         [HttpDelete("DeleteUser")]
         public async Task<ActionResult> DeleteUser(Guid id)
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = await _jwtTokenService.GetUserIdFromTokenAsync(token);
 
-            var result = await userService.DeleteUserAsync(token);
+            var result = await userService.DeleteUserAsync(userId.Value);
             return Ok(result);
         }
 
@@ -69,7 +72,7 @@ namespace AudioBooks.Api.Controllers.SuperAdmin
             var userId = await _jwtTokenService.GetUserIdFromTokenAsync(token);
 
 
-            var result = await userService.ChangePasswordAsync(passwordChangeDto, token);
+            var result = await userService.ChangePasswordAsync(passwordChangeDto, userId.Value);
             return Ok(result);
         }
         //[HttpPost("AdminChangePassword")]

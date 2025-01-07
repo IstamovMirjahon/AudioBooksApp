@@ -29,6 +29,7 @@ namespace AudioBooks.Infrastructure.Services.Books
                 Id = Guid.NewGuid(),
                 BookId = bookId,
                 UserName = usernmae,
+                Value = commentDto.CommentValue,
                 Text = commentDto.Text,
                 CreatedAt = DateTime.UtcNow
             };
@@ -41,6 +42,7 @@ namespace AudioBooks.Infrastructure.Services.Books
                 Id = comment.Id,
                 UserName = comment.UserName,
                 Text = comment.Text,
+                Value = comment.Value,
                 CreatedAt = comment.CreatedAt
             };
 
@@ -56,11 +58,28 @@ namespace AudioBooks.Infrastructure.Services.Books
                     Id = c.Id,
                     UserName = c.UserName,
                     Text = c.Text,
+                    Value = c.Value,
                     CreatedAt = c.CreatedAt
                 })
                 .ToListAsync();
 
             return Result<IEnumerable<CommentResultDTO>>.Success(comments.AsEnumerable());
         }
+        public async Task<Result<double>> CalculateAverageCommentValueAsync(Guid bookId)
+        {
+            var comments = await _context.Comments
+                .Where(c => c.BookId == bookId)
+                .ToListAsync();
+
+            if (!comments.Any())
+            {
+                return Result<double>.Failure(new Error("NoComments", "No comments found for this book"));
+            }
+
+            var averageValue = comments.Average(c => c.Value);
+
+            return Result<double>.Success(averageValue);
+        }
+
     }
 }
