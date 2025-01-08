@@ -7,7 +7,7 @@ public class BookResultDTO
     public string Title { get; set; }
 
     public string Author { get; set; }
-    public double Price { get; set; }
+    public double? Price { get; set; }
     public string Download_file { get; set; }
     public string Audio_file { get; set; }
     public string Image_file { get; set; }

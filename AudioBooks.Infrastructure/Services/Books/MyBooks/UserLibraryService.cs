@@ -34,7 +34,7 @@ public class UserLibraryService : IUserLibraryService
             {
                 User_Id = userLibraryCreateDTO.UserId,
                 Book_Id = userLibraryCreateDTO.BookId,
-                AddedDate = DateTime.UtcNow,
+                Added_Date = DateTime.UtcNow,
             };
             _userLibraryRepository.AddBookForLibraryAsync(userlibrary);
             return new RequestResponseDto { Message = "Muvaffaqiyatli qo'shildi", Success = true }; ;
@@ -78,40 +78,61 @@ public class UserLibraryService : IUserLibraryService
         {
             BookId = result.Book_Id,
             UserId = result.User_Id,
-            AddedDate = result.AddedDate
+            AddedDate = result.Added_Date
         };
 
         return Result<UserLibraryDTO>.Success(resultDto);
     }
 
-    public async Task<RequestResponseDto<IEnumerable<UserLibrary>>> SearchBook(string value)
+    public async Task<RequestResponseDto<IEnumerable<UserLibrary>>> SearchBook(string? value)
     {
         try
         {
+            string query;
+
+            // Agar value null yoki bo'sh bo'lsa, barcha kitoblarni qaytarish uchun shart
             if (string.IsNullOrEmpty(value))
             {
-                return new RequestResponseDto<IEnumerable<UserLibrary>> { Message = "value null", Success = false };
+                query = """
+                    SELECT ul.*
+                    FROM "user_libraries" ul
+                    JOIN "books" b ON ul."book_id" = b."id"
+                   """;
             }
-
-            var query = """
-                           SELECT ul.*
-                           FROM "user_libraries" ul
-                           JOIN "books" b ON ul."book_id" = b."id"
-                           WHERE LOWER(b."title") LIKE LOWER(@SearchTerm) OR LOWER(b."author") LIKE LOWER(@SearchTerm)
-                        """;
-
+            else
+            {
+                query = """
+                    SELECT ul.*
+                    FROM "user_libraries" ul
+                    JOIN "books" b ON ul."book_id" = b."id"
+                    WHERE LOWER(b."title") LIKE LOWER(@SearchTerm) 
+                       OR LOWER(b."author") LIKE LOWER(@SearchTerm)
+                   """;
+            }
 
             using var connection = _sqlconnection.ConnectionBuild();
 
-            var books = await connection.QueryAsync<UserLibrary>(
-                query, new { SearchTerm = "%" + value.ToLower() + "%" });
+            // Query uchun parametrlarni qo'shing
+            var books = string.IsNullOrEmpty(value)
+                ? await connection.QueryAsync<UserLibrary>(query)
+                : await connection.QueryAsync<UserLibrary>(query, new { SearchTerm = $"%{value.ToLower()}%" });
 
-            return new RequestResponseDto<IEnumerable<UserLibrary>> { Message = "Succesful", Success = true, Data = books.ToList() };
+            return new RequestResponseDto<IEnumerable<UserLibrary>>
+            {
+                Message = "Successful",
+                Success = true,
+                Data = books.ToList()
+            };
         }
         catch (Exception ex)
         {
             _logger.LogError($"{ex.Message}", ex);
-            return new RequestResponseDto<IEnumerable<UserLibrary>> { Message = "Failed", Success = false };
+            return new RequestResponseDto<IEnumerable<UserLibrary>>
+            {
+                Message = "Failed",
+                Success = false
+            };
         }
     }
+
 }

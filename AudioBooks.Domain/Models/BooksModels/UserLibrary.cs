@@ -14,5 +14,5 @@ public class UserLibrary
     public Guid Book_Id { get; set; }
 
     [Required(ErrorMessage = "AddedDate is required.")]
-    public DateTime AddedDate { get; set; }
+    public DateTime Added_Date { get; set; }
 }

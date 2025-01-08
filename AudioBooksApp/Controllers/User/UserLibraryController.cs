@@ -38,7 +38,7 @@ namespace AudioBooks.Api.Controllers.User
         }
 
         [HttpGet("SearchUserLibrary")]
-        public async Task<ActionResult> SearchUserLibrary(string value)
+        public async Task<ActionResult> SearchUserLibrary(string? value)
         {
             var result = await _userLibraryService.SearchBook(value);
 

@@ -50,11 +50,12 @@ public class UserService : IUserService
 
                 SingletonPattern.Instance.Id = default;
                 SingletonPattern.Instance.Email = userDTO.Email.ToLower();
+                SingletonPattern.Instance.DateOfBirth = userDTO.DateOfBirth;
                 SingletonPattern.Instance.Password = userDTO.Password;
                 SingletonPattern.Instance.Code = code;
                 SingletonPattern.Instance.CreateTime = DateTime.Now;
 
-                return Result<string>.Success($"{userDTO.Email.ToLower()} ga tasdiqlash kodi yuborildi - {code}");
+                return Result<string>.Success($"{userDTO.Email.ToLower()} ga tasdiqlash kodi yuborildi");
             }
             return Result<string>.Failure(UserError.ConfirmPassword);
         }
@@ -73,8 +74,10 @@ public class UserService : IUserService
                     FullName = SingletonPattern.Instance.FullName,
                     Email = SingletonPattern.Instance.Email,
                     Password = SingletonPattern.Instance.Password,
+                    BirthDate = SingletonPattern.Instance.DateOfBirth,
                     CreateDate = DateTime.UtcNow,
                     UpdateDate = DateTime.UtcNow,
+                    EmailConfirmAt = true,
                     IsDelete = false,
                     Role = UserRole.User
                 };
@@ -107,7 +110,7 @@ public class UserService : IUserService
             {
                 int code = await _userRepository.GenerateCode();
 
-                //await _userRepository.SendVerificationEmail(user.Email.ToLower(), code);
+                await _userRepository.SendVerificationEmail(user.Email.ToLower(), code);
 
                 SingletonPattern.Instance.Id = user.Id;
                 SingletonPattern.Instance.Email = user.Email;
@@ -115,7 +118,7 @@ public class UserService : IUserService
                 SingletonPattern.Instance.Code = code;
                 SingletonPattern.Instance.CreateTime = DateTime.Now;
 
-                return Result<string>.Success($"{user.Email.ToLower()} ga tasdiqlash kodi yuborildi - {code}");
+                return Result<string>.Success($"{user.Email.ToLower()} ga tasdiqlash kodi yuborildi");
             }
             return Result<string>.Failure(UserError.ConfirmPassword);
         }

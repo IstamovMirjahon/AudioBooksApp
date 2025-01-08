@@ -50,7 +50,7 @@ public class AuthController : ControllerBase
         try
         {
             var result = await _userService.SignUpService(userDTO);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Value);
         }
         catch (Exception ex)
         {
@@ -67,7 +67,7 @@ public class AuthController : ControllerBase
         try
         {
             var result = await _userService.VerificationCodeService(code);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Value);
         }
         catch (Exception ex)
         {
@@ -85,7 +85,7 @@ public class AuthController : ControllerBase
         try
         {
             var result = await _userService.RessetPasswordAsync(userRessetPassword);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Value);
         }
         catch (Exception ex)
         {

@@ -1,4 +1,5 @@
 ﻿using AudioBooks.Application.Data;
+using AudioBooks.Application.Interfaces.Books;
 using AudioBooks.Domain.DTOs;
 using AudioBooks.Domain.DTOs.Book;
 using AudioBooks.Domain.Models.BookModels;
@@ -12,11 +13,13 @@ public class BookRepository : Repository<Book>, IBookRepository
 {
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly ISqlConnection _sqlConnection;
+    private readonly ICommentService _commentService;
 
-    public BookRepository(ApplicationDbContext applicationDbContext, ISqlConnection sql) : base(applicationDbContext)
+    public BookRepository(ApplicationDbContext applicationDbContext, ISqlConnection sql, ICommentService commentService) : base(applicationDbContext)
     {
         _applicationDbContext = applicationDbContext;
         _sqlConnection = sql;
+        _commentService = commentService;
     }
 
     public async Task<IEnumerable<BookResultDTO>> GetAllAsyncDapper()
@@ -73,17 +76,27 @@ public class BookRepository : Repository<Book>, IBookRepository
             .Include(b => b.Comments)
             .ToListAsync();
 
+        var bookRatings = await _applicationDbContext.Comments
+            .GroupBy(c => c.BookId)
+            .Select(g => new
+            {
+                BookId = g.Key,
+                AverageRating = g.Average(c => c.Value)
+            })
+            .ToDictionaryAsync(x => x.BookId, x => x.AverageRating);
+
         var bookResultDtos = books.Select(book => new BookResultDTO
         {
             Id = book.Id,
             Title = book.Title,
             Author = book.Author,
+            Price = book.Price,
             Download_file = book.DownloadFile,
             Audio_file = book.AudioFile,
             Image_file = book.ImageFile,
             Description = book.Description,
             release_date = book.ReleaseDate,
-            Rating = book.Rating,
+            Rating = bookRatings.ContainsKey(book.Id) ? bookRatings[book.Id] : 0, 
             Categories = book.BookCategories.Select(bc => new CategoryResultDTO
             {
                 Id = bc.Category.Id,
@@ -95,6 +108,7 @@ public class BookRepository : Repository<Book>, IBookRepository
                 Id = c.Id,
                 UserName = c.UserName,
                 Text = c.Text,
+                Value = c.Value,
                 CreatedAt = c.CreatedAt
             }).ToList()
         });
@@ -173,7 +187,6 @@ public class BookRepository : Repository<Book>, IBookRepository
                 .ThenInclude(bc => bc.Category)
             .Include(b => b.Comments)
             .FirstOrDefaultAsync(b => b.Id == id);
-
         if (book == null)
         {
             return new RequestResponseDto<Book>
@@ -183,6 +196,8 @@ public class BookRepository : Repository<Book>, IBookRepository
             };
         }
 
+        var rating = await _commentService.CalculateAverageCommentValueAsync(id);
+        book.Rating = rating.Value;
         return new RequestResponseDto<Book>
         {
             Success = true,

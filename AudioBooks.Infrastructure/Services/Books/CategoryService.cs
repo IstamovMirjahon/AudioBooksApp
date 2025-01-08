@@ -86,6 +86,7 @@ public class CategoryService : ICategoryService
             Id = book.Id,
             Title = book.Title,
             Author = book.Author,
+            Price = book.Price,
             Download_file = book.DownloadFile,
             Audio_file = book.AudioFile,
             Image_file = book.ImageFile,
@@ -103,6 +104,7 @@ public class CategoryService : ICategoryService
                 Id = c.Id,
                 UserName = c.UserName,
                 Text = c.Text,
+                Value = c.Value,
                 CreatedAt = c.CreatedAt
             }).ToList()
         });

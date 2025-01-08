@@ -1,5 +1,6 @@
 ﻿using AudioBooks.Domain.Abstractions;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace AudioBooks.Domain.Models.BookModels;
 
@@ -17,7 +18,7 @@ public class Book : BaseParametrs
     public string Description { get; set; }
 
     [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than 0.")]
-    public double Price { get; set; }
+    public double? Price { get; set; }
 
     public string ImageFile { get; set; } 
     public string DownloadFile { get; set; }
@@ -29,7 +30,9 @@ public class Book : BaseParametrs
     public DateTime ReleaseDate { get; set; }
     public double Rating { get; set; }
 
+    [JsonIgnore]
     public virtual ICollection<BookCategory> BookCategories { get; set; }
+    [JsonIgnore]
     public virtual ICollection<Comment> Comments { get; set; }
 
     public static ValidationResult ValidateReleaseDate(DateTime releaseDate, ValidationContext context)

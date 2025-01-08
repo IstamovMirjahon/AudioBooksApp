@@ -54,13 +54,14 @@ public class BookService : IBookService
             Author = bookDto.Author,
             Description = bookDto.Description,
             Price = bookDto.Price,
-            ReleaseDate = bookDto.ReleaseDate ,
+            ReleaseDate = bookDto.ReleaseDate,
             ImageFile = imageFileName,
             DownloadFile = downloadFileName,
-            AudioFile = audioFileName
+            AudioFile = audioFileName,
+            CreateDate = DateTime.UtcNow,
+            UpdateDate = DateTime.UtcNow,
+            IsDelete = false
         };
-        var result = await _commentService.CalculateAverageCommentValueAsync(book.Id);
-        book.Rating = result.Value;
         if (bookDto.CategoryIds != null && bookDto.CategoryIds.Any())
         {
             book.BookCategories = bookDto.CategoryIds.Select(categoryId => new BookCategory
@@ -141,6 +142,7 @@ public class BookService : IBookService
         }
 
         var result = await _bookRepository.GetByIdAsync(id);
+      
 
         if (!result.Success)
         {
@@ -163,11 +165,13 @@ public class BookService : IBookService
             return new RequestResponseDto { Message = "Book Not Found", Success = false };
         }
 
+        book.SetReleaseDateUtc();
         existingBook.Data.Title = book.Title;
         existingBook.Data.Author = book.Author;
-        existingBook.Data.Description = book.Description;
-        existingBook.Data.Price = book.Price;
+        existingBook.Data.Description = book.Description ?? existingBook.Data.Description;
+        existingBook.Data.Price = book.Price ?? existingBook.Data.Price;
         existingBook.Data.ReleaseDate = book.ReleaseDate;
+        existingBook.Data.UpdateDate = DateTime.UtcNow;
 
         var uploadDirectory = Path.Combine(Directory.GetCurrentDirectory(), "UploadedFiles");
 
@@ -209,7 +213,7 @@ public class BookService : IBookService
             existingBook.Data.AudioFile = audioFileName;
         }
 
-        _bookRepository.UpdateAsync(existingBook.Data);
+        await _bookRepository.UpdateAsync(existingBook.Data);
         await _unitOfWork.SaveChangesAsync();
 
         return new RequestResponseDto { Message = "Succesful", Success = true };
