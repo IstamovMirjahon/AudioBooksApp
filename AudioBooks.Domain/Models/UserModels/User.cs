@@ -9,7 +9,7 @@ public class User : BaseParametrs
     public string? FullName { get; set; }
     public string? UserName { get; set; }
     public string? PhoneNumber { get; set; }
-    public DateOnly BirthDate { get; set; }
+    public DateTime BirthDate { get; set; }
     public string Email { get; set; }
     public bool EmailConfirmAt { get; set; } = false;
     public string Password { get; set; }

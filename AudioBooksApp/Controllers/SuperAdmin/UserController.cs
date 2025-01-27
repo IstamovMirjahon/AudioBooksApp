@@ -55,7 +55,7 @@ namespace AudioBooks.Api.Controllers.SuperAdmin
             return Ok(result.Value);
         }
         [HttpDelete("DeleteUser")]
-        public async Task<ActionResult> DeleteUser(Guid id)
+        public async Task<ActionResult> DeleteUser()
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var userId = await _jwtTokenService.GetUserIdFromTokenAsync(token);

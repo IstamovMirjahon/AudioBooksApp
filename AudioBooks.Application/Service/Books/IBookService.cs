@@ -8,7 +8,7 @@ namespace AudioBooks.Application.Interfaces.Books;
 public interface IBookService
 {
     Task<Result<IEnumerable<BookResultDTO>>> GetAllBook();
-    Task<Result<Book>> GetBook(Guid id);
+    Task<Result<BookResultDTO>> GetBook(Guid id);
     Task<RequestResponseDto> CreateBookAsync(BookCreateDTO book);
     Task<RequestResponseDto> UpdateBook(BookUpdateDTO book);
     Task<RequestResponseDto<Book>> DeleteBook(BookDeleteDTO book);

@@ -15,7 +15,7 @@ public class UserUpdateDto
     public string? PhoneNumber { get; set; }
 
     [Required(ErrorMessage = "Date of birth is required.")]
-    [DataType(DataType.Date)]
-    [Range(typeof(DateOnly), "1-1-1900", "12-31-2024", ErrorMessage = "Date of birth must be between 01-01-1900 and 12-31-2024.")]
-    public DateOnly DateOfBirth { get; set; }
+    [DataType(DataType.DateTime)]
+    [Range(typeof(DateTime), "1-1-1900", "12-31-2024", ErrorMessage = "Date of birth must be between 01-01-1900 and 12-31-2024.")]
+    public DateTime DateOfBirth { get; set; }
 }

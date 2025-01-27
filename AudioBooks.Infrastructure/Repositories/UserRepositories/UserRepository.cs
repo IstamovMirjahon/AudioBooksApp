@@ -94,7 +94,7 @@ public class UserRepository : Repository<User>, IUserRepository
                             full_name AS FullName,
                             user_name AS UserName,
                             phone_number AS PhoneNumber,
-                            birth_date AS BirthDate,
+                            CAST(birth_date AS DATE) AS BirthDate,
                             email,
                             email_confirm_at AS EmailConfirmAt,
                             password,

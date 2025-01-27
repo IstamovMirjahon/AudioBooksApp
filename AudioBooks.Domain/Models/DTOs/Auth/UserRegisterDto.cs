@@ -20,6 +20,6 @@ public class UserRegisterDto
     public string ConfirmPassword { get; set; }
 
     [Required(ErrorMessage = "Tug'ilgan sanani kiritish shart.")]
-    [DataType(DataType.Date, ErrorMessage = "Tug'ilgan sana noto'g'ri formatda.")]
-    public DateOnly DateOfBirth { get; set; }
+    [DataType(DataType.DateTime, ErrorMessage = "Tug'ilgan sana noto'g'ri formatda.")]
+    public DateTime DateOfBirth { get; set; }
 }

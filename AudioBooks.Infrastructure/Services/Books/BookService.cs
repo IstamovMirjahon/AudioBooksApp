@@ -134,81 +134,118 @@ public class BookService : IBookService
         return Result<IEnumerable<BookResultDTO>>.Success(result.ToList());
     }
 
-    public async Task<Result<Book>> GetBook(Guid id)
+    public async Task<Result<BookResultDTO>> GetBook(Guid id)
     {
-        if (string.IsNullOrEmpty(id.ToString()))
+        if (id == Guid.Empty)
         {
-            return Result<Book>.Failure(new Error("Xatolik:", "id null"));
+            return Result<BookResultDTO>.Failure(new Error("Xatolik:", "Id null yoki noto‘g‘ri"));
         }
 
         var result = await _bookRepository.GetByIdAsync(id);
-      
 
-        if (!result.Success)
+        if (!result.Success || result.Data == null)
         {
-            return Result<Book>.Failure(new Error("Xatolik:", "Kitob topilmadi"));
+            return Result<BookResultDTO>.Failure(new Error("Xatolik:", "Kitob topilmadi"));
         }
 
-        return Result<Book>.Success(result.Data);
+        var book = result.Data;
+
+        var bookResultDto = new BookResultDTO
+        {
+            Id = book.Id,
+            Title = book.Title,
+            Author = book.Author,
+            Price = book.Price,
+            Download_file = book.DownloadFile,
+            Audio_file = book.AudioFile,
+            Image_file = book.ImageFile,
+            Description = book.Description,
+            release_date = book.ReleaseDate,
+            Rating = book.Rating, // Rating oldindan hisoblangan bo‘lsa
+            Categories = book.BookCategories.Select(bc => new CategoryResultDTO
+            {
+                Id = bc.Category.Id,
+                Name = bc.Category.Name,
+                Description = bc.Category.Description
+            }).ToList(),
+            Comments = book.Comments.Select(c => new CommentResultDTO
+            {
+                Id = c.Id,
+                UserName = c.UserName,
+                Text = c.Text,
+                Value = c.Value,
+                CreatedAt = c.CreatedAt
+            }).ToList()
+        };
+
+        return Result<BookResultDTO>.Success(bookResultDto);
     }
 
-    public async Task<RequestResponseDto> UpdateBook(BookUpdateDTO book)
+
+    public async Task<RequestResponseDto> UpdateBook(BookUpdateDTO bookDto)
     {
-        if (book == null)
+        if (bookDto == null)
         {
-            return new RequestResponseDto { Message = "nul qiymat", Success = false };
+            return new RequestResponseDto { Message = "Null qiymat", Success = false };
         }
 
-        var existingBook = await _bookRepository.GetByIdAsync(book.Id);
+        var existingBook = await _bookRepository.GetByIdAsync(bookDto.Id);
         if (existingBook == null)
         {
             return new RequestResponseDto { Message = "Book Not Found", Success = false };
         }
 
-        book.SetReleaseDateUtc();
-        existingBook.Data.Title = book.Title;
-        existingBook.Data.Author = book.Author;
-        existingBook.Data.Description = book.Description ?? existingBook.Data.Description;
-        existingBook.Data.Price = book.Price ?? existingBook.Data.Price;
-        existingBook.Data.ReleaseDate = book.ReleaseDate;
+        bookDto.SetReleaseDateUtc();
+        existingBook.Data.Title = bookDto.Title;
+        existingBook.Data.Author = bookDto.Author;
+        existingBook.Data.Description = bookDto.Description ?? existingBook.Data.Description;
+        existingBook.Data.Price = bookDto.Price ?? existingBook.Data.Price;
+        existingBook.Data.ReleaseDate = bookDto.ReleaseDate;
         existingBook.Data.UpdateDate = DateTime.UtcNow;
 
         var uploadDirectory = Path.Combine(Directory.GetCurrentDirectory(), "UploadedFiles");
 
-        DeleteFileIfExists(uploadDirectory, existingBook.Data.ImageFile);
-        DeleteFileIfExists(uploadDirectory, existingBook.Data.DownloadFile);
-        DeleteFileIfExists(uploadDirectory, existingBook.Data.AudioFile);
-
-
-        if (book.ImageUrl != null)
+        if (!Directory.Exists(uploadDirectory))
         {
-            var imageFileName = $"{Guid.NewGuid()}{Path.GetExtension(book.ImageUrl.FileName)}";
+            Directory.CreateDirectory(uploadDirectory);
+        }
+
+        // Fayllarni o'chirish va yangilarini yuklash jarayoni
+        if (bookDto.ImageUrl != null)
+        {
+            DeleteFileIfExists(uploadDirectory, existingBook.Data.ImageFile);
+
+            var imageFileName = $"{Guid.NewGuid()}{Path.GetExtension(bookDto.ImageUrl.FileName)}";
             var imagePath = Path.Combine(uploadDirectory, imageFileName);
             using (var stream = new FileStream(imagePath, FileMode.Create))
             {
-                await book.ImageUrl.CopyToAsync(stream);
+                await bookDto.ImageUrl.CopyToAsync(stream);
             }
             existingBook.Data.ImageFile = imageFileName;
         }
 
-        if (book.DownloadUrl != null)
+        if (bookDto.DownloadUrl != null)
         {
-            var downloadFileName = $"{Guid.NewGuid()}{Path.GetExtension(book.DownloadUrl.FileName)}";
+            DeleteFileIfExists(uploadDirectory, existingBook.Data.DownloadFile);
+
+            var downloadFileName = $"{Guid.NewGuid()}{Path.GetExtension(bookDto.DownloadUrl.FileName)}";
             var downloadPath = Path.Combine(uploadDirectory, downloadFileName);
             using (var stream = new FileStream(downloadPath, FileMode.Create))
             {
-                await book.DownloadUrl.CopyToAsync(stream);
+                await bookDto.DownloadUrl.CopyToAsync(stream);
             }
             existingBook.Data.DownloadFile = downloadFileName;
         }
 
-        if (book.AudioUrl != null)
+        if (bookDto.AudioUrl != null)
         {
-            var audioFileName = $"{Guid.NewGuid()}{Path.GetExtension(book.AudioUrl.FileName)}";
+            DeleteFileIfExists(uploadDirectory, existingBook.Data.AudioFile);
+
+            var audioFileName = $"{Guid.NewGuid()}{Path.GetExtension(bookDto.AudioUrl.FileName)}";
             var audioPath = Path.Combine(uploadDirectory, audioFileName);
             using (var stream = new FileStream(audioPath, FileMode.Create))
             {
-                await book.AudioUrl.CopyToAsync(stream);
+                await bookDto.AudioUrl.CopyToAsync(stream);
             }
             existingBook.Data.AudioFile = audioFileName;
         }
@@ -216,8 +253,9 @@ public class BookService : IBookService
         await _bookRepository.UpdateAsync(existingBook.Data);
         await _unitOfWork.SaveChangesAsync();
 
-        return new RequestResponseDto { Message = "Succesful", Success = true };
+        return new RequestResponseDto { Message = "Successful", Success = true };
     }
+
 
 
 

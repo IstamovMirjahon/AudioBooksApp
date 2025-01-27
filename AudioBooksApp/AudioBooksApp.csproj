@@ -22,4 +22,8 @@
     <ProjectReference Include="..\AudioBooks.Infrastructure\AudioBooks.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="UploadedFiles\" />
+  </ItemGroup>
+
 </Project>

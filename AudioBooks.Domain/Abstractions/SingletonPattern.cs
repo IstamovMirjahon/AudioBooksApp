@@ -7,7 +7,7 @@
         public string FullName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public DateOnly DateOfBirth { get; set; }
+        public DateTime DateOfBirth { get; set; }
         public int Code { get; set; }
         public DateTime CreateTime { get; set; }
 

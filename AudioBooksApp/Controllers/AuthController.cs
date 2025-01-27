@@ -15,12 +15,7 @@ public class AuthController : ControllerBase
     {
         _userService = userService;
     }
-    [Authorize]
-    [HttpGet]
-    public IActionResult Test()
-    {
-        return Ok("Yaxshi");
-    }
+   
 
     [HttpPost]
     [SwaggerOperation(
